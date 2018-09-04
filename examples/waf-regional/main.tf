@@ -187,7 +187,7 @@ resource "aws_wafregional_web_acl" "waf_acl" {
   }
 }
 
-resource "aws_wafregional_web_acl_association" "foo" {
+resource "aws_wafregional_web_acl_association" "waf_association" {
   resource_arn = "${aws_alb.waf_alb.arn}"
   web_acl_id = "${aws_wafregional_web_acl.waf_acl.id}"
 }
