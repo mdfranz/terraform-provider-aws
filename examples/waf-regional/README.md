@@ -1,6 +1,6 @@
 # Region WAF with ALB
 
-This example shows how to configure AWS waf for an ALB Endpoint
+This example shows how to configure AWS waf for an ALB Endpoint. It is based on https://github.com/mdfranz/terraform-provider-aws/tree/master/examples/ecs-alb
 
 
 To run, configure your AWS provider as described in https://www.terraform.io/docs/providers/aws/index.html
