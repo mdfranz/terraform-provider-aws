@@ -138,6 +138,12 @@ resource "aws_alb_listener" "waf_alb_listener" {
   }
 }
 
+resource "aws_alb_target_group_attachment" "waf_attachment" {
+  target_group_arn = "${aws_alb_target_group.waf_alb_target.arn}"
+  target_id        = "${aws_instance.waf_ec2.id}"
+  port             = 80
+}
+
 
 
 ## WAF
@@ -156,6 +162,21 @@ resource "aws_wafregional_geo_match_set" "waf_neighbors" {
   }
 }
 
+resource "aws_wafregional_ipset" "waf_verizon" {
+  name = "verizon_ipset"
+
+  ip_set_descriptor {
+    type = "IPV4"
+    value = "71.179.0.0/16"
+  }
+
+  ip_set_descriptor {
+    type  = "IPV4"
+    value = "71.180.0.0/16"
+  }
+}
+
+
 resource "aws_wafregional_rule" "waf_rule" {
   name = "wafrule"
   metric_name = "wafrulemetric"
@@ -167,6 +188,17 @@ resource "aws_wafregional_rule" "waf_rule" {
   }
 }
 
+
+resource "aws_wafregional_rule" "waf_rule_verizon" {
+  name = "wafruleverizion"
+  metric_name = "wafruleverizonmetric"
+
+  predicate {
+    type    = "IPMatch"
+    data_id = "${aws_wafregional_ipset.waf_verizon.id}"
+    negated = false
+  }
+}
 
 resource "aws_wafregional_web_acl" "waf_acl" {
   name        = "waf_acl"
@@ -183,6 +215,17 @@ resource "aws_wafregional_web_acl" "waf_acl" {
 
     priority = 1
     rule_id  = "${aws_wafregional_rule.waf_rule.id}"
+    type     = "REGULAR"
+  }
+
+
+  rule {
+    action {
+       type = "COUNT"
+    }
+
+    priority = 2 
+    rule_id  = "${aws_wafregional_rule.waf_rule_verizon.id}"
     type     = "REGULAR"
   }
 }
